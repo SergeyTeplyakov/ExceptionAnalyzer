@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,10 +11,10 @@ namespace ExceptionAnalyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ThrowExAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "ThrowEx";
+        public const string DiagnosticId = "Rethrowing exception is possibly intended";
         // TODO: extract all messages somewhere to be able to add errogant messages
-        internal const string Title = "Rethrow exception properly, dude!";
-        internal const string MessageFormat = "Exception rethrow is possibly intended";
+        internal const string Title = "Rethrow exceptions properly, dude!";
+        public const string MessageFormat = "Rethrowing exception is possibly intended";
         internal const string Category = "CodeSmell";
 
         internal static DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true);

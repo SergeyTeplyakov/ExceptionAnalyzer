@@ -8,15 +8,19 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
+using System;
 
 namespace ExceptionAnalyzer
 {
     [ExportCodeFixProvider("EmptyCatchBlockAnalyzerCodeFixProvider", LanguageNames.CSharp), Shared]
     public class EmptyCatchBlockAnalyzerCodeFixProvider : CodeFixProvider
     {
-        public sealed override ImmutableArray<string> GetFixableDiagnosticIds()
+        public override ImmutableArray<string> FixableDiagnosticIds
         {
-            return ImmutableArray.Create(EmptyCatchBlockAnalyzer.DiagnosticId);
+            get
+            {
+                return ImmutableArray.Create(EmptyCatchBlockAnalyzer.DiagnosticId);
+            }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()
@@ -24,7 +28,7 @@ namespace ExceptionAnalyzer
             return WellKnownFixAllProviders.BatchFixer;
         }
 
-        public sealed override async Task ComputeFixesAsync(CodeFixContext context)
+        public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             // Create a new block with a list that contains a throw statement.
             var throwStatement = SyntaxFactory.ThrowStatement();
@@ -48,8 +52,9 @@ namespace ExceptionAnalyzer
             var newRoot = root.ReplaceNode(catchBlock.Block, newBlock); // Create new AST.
             //var newRoot = root.ReplaceNode(catchBlock, newCatchBlock); // Create new AST.
 
-            var codeAction = CodeAction.Create("throw", context.Document.WithSyntaxRoot(newRoot));
-            context.RegisterFix(codeAction, diagnostic);
+            
+            var codeAction = CodeAction.Create("throw", ct => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)));
+            context.RegisterCodeFix(codeAction, diagnostic);
         }
 
     }

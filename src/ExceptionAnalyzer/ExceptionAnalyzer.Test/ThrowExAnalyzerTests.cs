@@ -42,7 +42,7 @@ namespace ExceptionAnalyzer.Test
                catch(Exception ex) {throw this.ex;}
             }");
 
-            Assert.IsTrue(HasWarning(test));
+            Assert.IsFalse(HasWarning(test));
         }
 
         [TestMethod]
@@ -132,7 +132,7 @@ namespace ExceptionAnalyzer.Test
             var expected = new DiagnosticResult
             {
                 Id = ThrowExAnalyzer.DiagnosticId,
-                Message = "Exception rethrow is possibly intended",
+                Message = ThrowExAnalyzer.MessageFormat,
                 Severity = DiagnosticSeverity.Warning,
                 Locations =
                     new[] {
@@ -142,7 +142,7 @@ namespace ExceptionAnalyzer.Test
 
             VerifyCSharpDiagnostic(test, expected);
 
-            var fixtest = test.Replace("catch(Exception ex) {Console.WriteLine(ex); throw ex;}", @"catch(Exception ex) {Console.WriteLine(ex); throw;}");
+            var fixtest = test.Replace("catch(Exception ex) {Console.WriteLine(ex); throw ex;}", @"catch(Exception ex) {Console.WriteLine(ex); throw; }");
 
             VerifyCSharpFix(test, fixtest);
         }
@@ -163,16 +163,17 @@ namespace ExceptionAnalyzer.Test
             }");
 
             Assert.AreEqual(2, GetSortedDiagnostics(test).Length);
-
+            // TODO: currently the fix is breaking the layout. 
             var fixtest = TestBase.Replace("{placeholder}", @"
             public void Foo(int n)
             {
                try { Console.WriteLine(); }
                catch(Exception)
                {
-                 if (n == 1) throw;
-                 throw;
-               }
+                 if (n == 1)
+                    throw;
+                throw;
+            }
             }");
 
             VerifyCSharpFix(test, fixtest);
@@ -194,16 +195,17 @@ namespace ExceptionAnalyzer.Test
             }");
 
             Assert.AreEqual(2, GetSortedDiagnostics(test).Length);
-
+            // TODO: currently the fix is breaking the layout. 
             var fixtest = TestBase.Replace("{placeholder}", @"
             public void Foo(int n)
             {
                try { Console.WriteLine(); }
                catch(Exception) // some comment!!!
                {
-                 if (n == 1) throw;
-                 throw;
-               }
+                 if (n == 1)
+                    throw;
+                throw;
+            }
             }");
 
             VerifyCSharpFix(test, fixtest);

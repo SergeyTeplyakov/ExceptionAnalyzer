@@ -19,9 +19,14 @@ namespace ExceptionAnalyzer
     [ExportCodeFixProvider("ThrowExAnalyzerCodeFixProvider", LanguageNames.CSharp), Shared]
     public class ThrowExAnalyzerCodeFixProvider : CodeFixProvider
     {
-        public sealed override ImmutableArray<string> GetFixableDiagnosticIds()
+        const string FixText = "Rethrow exception using 'throw;'";
+
+        public override ImmutableArray<string> FixableDiagnosticIds
         {
-            return ImmutableArray.Create(ThrowExAnalyzer.DiagnosticId);
+            get
+            {
+                return ImmutableArray.Create(ThrowExAnalyzer.DiagnosticId);
+            }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()
@@ -29,7 +34,7 @@ namespace ExceptionAnalyzer
             return WellKnownFixAllProviders.BatchFixer;
         }
 
-        public sealed override async Task ComputeFixesAsync(CodeFixContext context)
+        public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
@@ -66,31 +71,31 @@ namespace ExceptionAnalyzer
             // Replacing the tree
             var newRoot = root.ReplaceNode(originalCatchDeclaration, modifiedCatchDeclaration);
 
-            var codeAction = CodeAction.Create("throw", context.Document.WithSyntaxRoot(newRoot));
-            context.RegisterFix(codeAction, diagnostic);
+            var codeAction = CodeAction.Create(FixText, token => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)));
+            context.RegisterCodeFix(codeAction, diagnostic);
         }
 
         // This is another possible solution!
         // Not sure for now is it any better than existing one!
-        class CustomRewriter : CSharpSyntaxRewriter
-        {
-            private readonly ThrowStatementSyntax _originalThrowStatement;
+        //class CustomRewriter : CSharpSyntaxRewriter
+        //{
+        //    private readonly ThrowStatementSyntax _originalThrowStatement;
 
-            public CustomRewriter(ThrowStatementSyntax originalThrowStatement)
-            {
-                _originalThrowStatement = originalThrowStatement;
-            }
+        //    public CustomRewriter(ThrowStatementSyntax originalThrowStatement)
+        //    {
+        //        _originalThrowStatement = originalThrowStatement;
+        //    }
 
-            public override SyntaxNode VisitThrowStatement(ThrowStatementSyntax node)
-            {
-                if (node == _originalThrowStatement)
-                {
-                    return SyntaxFactory.ThrowStatement().WithTrailingTrivia(_originalThrowStatement.GetTrailingTrivia()).WithLeadingTrivia(_originalThrowStatement.GetLeadingTrivia());
-                }
+        //    public override SyntaxNode VisitThrowStatement(ThrowStatementSyntax node)
+        //    {
+        //        if (node == _originalThrowStatement)
+        //        {
+        //            return SyntaxFactory.ThrowStatement().WithTrailingTrivia(_originalThrowStatement.GetTrailingTrivia()).WithLeadingTrivia(_originalThrowStatement.GetLeadingTrivia());
+        //        }
 
-                return base.VisitThrowStatement(node);
-            }
-        }
+        //        return base.VisitThrowStatement(node);
+        //    }
+        //}
         private static async Task<bool> ExceptionDeclarationCouldBeRemoved(CodeFixContext context, SyntaxNode root, ThrowStatementSyntax originalThrowStatement)
         {
             // If "ex" from "throw ex" was the only reference to "ex", then additional modification should be made
@@ -112,6 +117,7 @@ namespace ExceptionAnalyzer
             // Searching within one document should be fast. Still need to check!
 
             var references = await SymbolFinder.FindReferencesAsync(symbol.Symbol, solution, ImmutableHashSet.Create(context.Document));
+            var locations = references.SelectMany(x => x.Locations).ToArray();
             var numberOfUsages =
                 references
                 .SelectMany(x => x.Locations)
@@ -123,7 +129,7 @@ namespace ExceptionAnalyzer
             // There is two usages of the "ex" in two "throw ex" statemetns.
             // Two different fixes would be run for both warnings.
             // The first fix will change the code to "catch(Exception) {throw ex; throw;}" witch is not a valid C# program
-            return numberOfUsages == 1;
+            return numberOfUsages == 1 && locations.Length == 1;
         }
 
         [Pure]

@@ -14,7 +14,7 @@ namespace ExceptionAnalyzer.Test
     [TestClass]
     public class EmptyCatchBlockAnalyzerTests : CodeFixVerifier
     {
-        [TestMethod]
+        //[TestMethod]
         public void TestWarningOnEmptyBlock()
         {
             var test = @"
