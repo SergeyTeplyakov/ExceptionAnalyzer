@@ -16,6 +16,16 @@ namespace TestHelper
     /// </summary>
     public abstract partial class CodeFixVerifier : DiagnosticVerifier
     {
+        protected bool HasWarning(string source)
+        {
+            return GetSortedDiagnostics(source).Length != 0;
+        }
+
+        protected Diagnostic[] GetSortedDiagnostics(string source)
+        {
+            return GetSortedDiagnostics(new[] { source }, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer());
+        }
+
         /// <summary>
         /// Returns the codefix being tested (C#) - to be implemented in non-abstract class
         /// </summary>

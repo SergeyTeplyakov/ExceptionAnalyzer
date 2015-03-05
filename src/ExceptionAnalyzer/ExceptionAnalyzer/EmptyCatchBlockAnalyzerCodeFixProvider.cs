@@ -15,13 +15,9 @@ namespace ExceptionAnalyzer
     [ExportCodeFixProvider("EmptyCatchBlockAnalyzerCodeFixProvider", LanguageNames.CSharp), Shared]
     public class EmptyCatchBlockAnalyzerCodeFixProvider : CodeFixProvider
     {
-        public override ImmutableArray<string> FixableDiagnosticIds
-        {
-            get
-            {
-                return ImmutableArray.Create(EmptyCatchBlockAnalyzer.DiagnosticId);
-            }
-        }
+        private const string FixText = "Add 'throw;' statement";
+        public override ImmutableArray<string> FixableDiagnosticIds =>  
+            ImmutableArray.Create(EmptyCatchBlockAnalyzer.DiagnosticId);
 
         public sealed override FixAllProvider GetFixAllProvider()
         {
@@ -32,28 +28,21 @@ namespace ExceptionAnalyzer
         {
             // Create a new block with a list that contains a throw statement.
             var throwStatement = SyntaxFactory.ThrowStatement();
-            var statementList = new SyntaxList<StatementSyntax>().Add(throwStatement);
-            var newBlock = SyntaxFactory.Block().WithStatements(statementList);
-
-            // Create a new, replacement catch block with our throw statement.
-            var newCatchBlock = SyntaxFactory.CatchClause().WithBlock(newBlock).
-              WithAdditionalAnnotations(Formatter.Annotation);
 
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
             var token = root.FindToken(diagnosticSpan.Start); // This is catch keyword.
-            var catchBlock = token.Parent as CatchClauseSyntax; // This is catch block.
 
-            var rr = catchBlock.Block.Statements.Add(throwStatement);
-            newBlock = SyntaxFactory.Block().WithStatements(rr).WithAdditionalAnnotations(Formatter.Annotation);
+            var catchBlock = token.Parent as CatchClauseSyntax;
 
-            var newRoot = root.ReplaceNode(catchBlock.Block, newBlock); // Create new AST.
-            //var newRoot = root.ReplaceNode(catchBlock, newCatchBlock); // Create new AST.
+            //var blockWithThrow = catchBlock.Block.Statements.Add(throwStatement);
+            //var newBlock = SyntaxFactory.Block().WithStatements(blockWithThrow).WithAdditionalAnnotations(Formatter.Annotation);
+            var newBlock = catchBlock.Block.AddStatements(throwStatement).WithAdditionalAnnotations(Formatter.Annotation);
+            var newRoot = root.ReplaceNode(catchBlock, catchBlock.WithBlock(newBlock));
 
-            
-            var codeAction = CodeAction.Create("throw", ct => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)));
+            var codeAction = CodeAction.Create(FixText, ct => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)));
             context.RegisterCodeFix(codeAction, diagnostic);
         }
 

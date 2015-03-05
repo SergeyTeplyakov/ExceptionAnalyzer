@@ -32,6 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="GenericCatchBlockAnalyzer.cs" />
     <Compile Include="Utils\Monadic.cs" />
     <Compile Include="ThrowExAnalyzerCodeFixProvider.cs" />
     <Compile Include="ThrowExAnalyzer.cs" />

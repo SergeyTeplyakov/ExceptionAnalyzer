@@ -15,20 +15,20 @@ namespace ExceptionAnalyzer.Test
     public class ThrowExAnalyzerTests : CodeFixVerifier
     {
         private const string TestBase = @"
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Diagnostics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
-    namespace ConsoleApplication1
+namespace ConsoleApplication1
+{
+    class TypeName
     {
-        class TypeName
-        {
-            {placeholder}
-        }
-    }";
+        {placeholder}
+    }
+}";
 
         [TestMethod]
         public void NoWarningWhenThrowingInstanceVariable()
@@ -110,25 +110,25 @@ namespace ExceptionAnalyzer.Test
         [TestMethod]
         public void TestWarningWithLocationAndFix()
         {
-            var test = @"
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Diagnostics;
+        var test = @"
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
-    namespace ConsoleApplication1
+namespace ConsoleApplication1
+{
+    class TypeName
     {
-        class TypeName
+        public static void Foo()
         {
-            public static void Foo()
-            {
-                try { Console.WriteLine(); }
-                catch(Exception ex) {Console.WriteLine(ex); throw ex;}
-            }
+            try { Console.WriteLine(); }
+            catch(Exception ex) {Console.WriteLine(ex); throw ex;}
         }
-    }";
+    }
+}";
             var expected = new DiagnosticResult
             {
                 Id = ThrowExAnalyzer.DiagnosticId,
@@ -136,7 +136,7 @@ namespace ExceptionAnalyzer.Test
                 Severity = DiagnosticSeverity.Warning,
                 Locations =
                     new[] {
-                            new DiagnosticResultLocation("Test0.cs", 16, 67)
+                            new DiagnosticResultLocation("Test0.cs", 16, 63)
                         }
             };
 
@@ -152,29 +152,29 @@ namespace ExceptionAnalyzer.Test
         {
             var test =
     TestBase.Replace("{placeholder}", @"
-            public void Foo(int n)
+        public void Foo(int n)
+        {
+            try { Console.WriteLine(); }
+            catch(Exception ex)
             {
-               try { Console.WriteLine(); }
-               catch(Exception ex)
-               {
-                 if (n == 1) throw ex;
-                 throw ex;
-               }
-            }");
+                if (n == 1) throw ex;
+                throw ex;
+            }
+        }");
 
             Assert.AreEqual(2, GetSortedDiagnostics(test).Length);
             // TODO: currently the fix is breaking the layout. 
             var fixtest = TestBase.Replace("{placeholder}", @"
-            public void Foo(int n)
+        public void Foo(int n)
+        {
+            try { Console.WriteLine(); }
+            catch(Exception)
             {
-               try { Console.WriteLine(); }
-               catch(Exception)
-               {
-                 if (n == 1)
+                if (n == 1)
                     throw;
                 throw;
             }
-            }");
+        }");
 
             VerifyCSharpFix(test, fixtest);
         }
@@ -184,41 +184,31 @@ namespace ExceptionAnalyzer.Test
         {
             var test =
     TestBase.Replace("{placeholder}", @"
-            public void Foo(int n)
+        public void Foo(int n)
+        {
+            try { Console.WriteLine(); }
+            catch(Exception ex) // some comment!!!
             {
-               try { Console.WriteLine(); }
-               catch(Exception ex) // some comment!!!
-               {
-                 if (n == 1) throw ex;
-                 throw ex;
-               }
-            }");
+                if (n == 1) throw ex;
+                throw ex;
+            }
+        }");
 
             Assert.AreEqual(2, GetSortedDiagnostics(test).Length);
             // TODO: currently the fix is breaking the layout. 
             var fixtest = TestBase.Replace("{placeholder}", @"
-            public void Foo(int n)
+        public void Foo(int n)
+        {
+            try { Console.WriteLine(); }
+            catch(Exception) // some comment!!!
             {
-               try { Console.WriteLine(); }
-               catch(Exception) // some comment!!!
-               {
-                 if (n == 1)
+                if (n == 1)
                     throw;
                 throw;
             }
-            }");
+        }");
 
             VerifyCSharpFix(test, fixtest);
-        }
-
-        private bool HasWarning(string source)
-        {
-            return GetSortedDiagnostics(source).Length != 0;
-        }
-
-        private Diagnostic[] GetSortedDiagnostics(string source)
-        {
-            return GetSortedDiagnostics(new[] { source }, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer());
         }
 
         protected override CodeFixProvider GetCSharpCodeFixProvider()
