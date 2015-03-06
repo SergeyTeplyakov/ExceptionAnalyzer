@@ -10,14 +10,18 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ExceptionAnalyzer
 {
+    /// <summary>
+    /// Detects `catch` blocks that swallow an exception.
+    /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class GenericCatchBlockAnalyzer : DiagnosticAnalyzer
     {
+        // 
         // Catch is not empty, `catch` or `catch(Exception)` and some return statement exists. Add hint!
         // show hint on the return itself
         public const string DiagnosticId = "Generic catch block analyzer";
-        internal const string Title = "Swallow all exceptions considered harmful";
-        internal const string MessageFormat = "Catching everything, app could be in unpredictable state";
+        internal const string Title = "Swallow exceptions considered harmful";
+        internal const string MessageFormat = "Just swallowed everything! Are you not curious at all about exception type?";
         internal const string Category = "CodeSmell";
 
         internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true);

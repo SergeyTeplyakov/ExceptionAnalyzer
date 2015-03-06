@@ -12,8 +12,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ExceptionAnalyzer
 {
     /// <summary>
-    /// Detects emtpy generic catch blocks like `catch{}` or `catch(Exception){}
+    /// Detects emtpy generic catch blocks like `catch{}` or `catch(Exception){}`.
     /// </summary>
+    /// <remarks>
+    /// TODO: right now, <see cref="EmptyCatchBlockAnalyzer"/> is a subset of <see cref="GenericCatchBlockAnalyzer"/>. Revisit this approach later!
+    /// </remarks>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class EmptyCatchBlockAnalyzer : DiagnosticAnalyzer
     {

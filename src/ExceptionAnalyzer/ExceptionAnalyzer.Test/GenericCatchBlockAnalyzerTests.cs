@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CodeFixes;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -39,7 +40,7 @@ namespace ExceptionAnalyzer.Test
                catch {Console.WriteLine();}
             }");
 
-            Assert.IsFalse(HasWarning(test));
+            Assert.IsTrue(HasWarning(test));
         }
 
         [TestMethod]
@@ -81,10 +82,120 @@ namespace ExceptionAnalyzer.Test
             Assert.IsFalse(HasWarning(test));
         }
 
+        [TestMethod]
+        public void TestWarningWithFix()
+        {
+            var test = @"
+using System;
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        public static void Foo()
+        {
+            try
+            {
+                Console.WriteLine();
+            }
+            catch
+            {
+                Console.WriteLine();
+            }
+        }
+    }
+}";
+            var expected = new DiagnosticResult
+            {
+                Id = GenericCatchBlockAnalyzer.DiagnosticId,
+                Message = "Just swallowed everything! Are you not curious at all about exception type?",
+                Severity = DiagnosticSeverity.Warning,
+                Locations =
+                    new[] {
+                            new DiagnosticResultLocation("Test0.cs", 14, 13)
+                        }
+            };
+
+            VerifyCSharpDiagnostic(test, expected);
+
+            var fixtest = @"
+using System;
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        public static void Foo()
+        {
+            try
+            {
+                Console.WriteLine();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine();
+            }
+        }
+    }
+}";
+
+
+            VerifyCSharpFix(test, fixtest, allowNewCompilerDiagnostics: true);
+        }
+
+        [TestMethod]
+        public void TestFixWithoutUsingStatement()
+        {
+            var test = @"
+//using System;
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        public static void Foo()
+        {
+            try
+            {
+                Console.WriteLine();
+            }
+            catch
+            {
+                Console.WriteLine();
+            }
+        }
+    }
+}";
+
+            Assert.IsTrue(HasWarning(test));
+
+            var fixtest = @"
+//using System;
+
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        public static void Foo()
+        {
+            try
+            {
+                Console.WriteLine();
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine();
+            }
+        }
+    }
+}";
+
+            VerifyCSharpFix(test, fixtest, allowNewCompilerDiagnostics: true);
+        }
+
         protected override CodeFixProvider GetCSharpCodeFixProvider()
         {
-            return null;
-            //return new GenericCatchBlockAnalyzer();
+            return new GenericCatchBlockCodeFixProvider();
         }
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()

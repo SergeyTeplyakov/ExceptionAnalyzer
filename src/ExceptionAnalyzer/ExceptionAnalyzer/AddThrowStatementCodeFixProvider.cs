@@ -13,7 +13,7 @@ using System;
 namespace ExceptionAnalyzer
 {
     [ExportCodeFixProvider("EmptyCatchBlockAnalyzerCodeFixProvider", LanguageNames.CSharp), Shared]
-    public class EmptyCatchBlockAnalyzerCodeFixProvider : CodeFixProvider
+    public class AddThrowStatementCodeFixProvider : CodeFixProvider
     {
         private const string FixText = "Add 'throw;' statement";
         public override ImmutableArray<string> FixableDiagnosticIds =>  
@@ -32,6 +32,7 @@ namespace ExceptionAnalyzer
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
             var diagnostic = context.Diagnostics.First();
+            
             var diagnosticSpan = diagnostic.Location.SourceSpan;
             var token = root.FindToken(diagnosticSpan.Start); // This is catch keyword.
 

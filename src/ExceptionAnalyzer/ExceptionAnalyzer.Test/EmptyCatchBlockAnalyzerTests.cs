@@ -63,7 +63,6 @@ namespace ConsoleApplication1
 }";
 
             VerifyCSharpFix(test, fixtest);
-
         }
 
         [TestMethod]
@@ -117,7 +116,7 @@ namespace ConsoleApplication1
 
         protected override CodeFixProvider GetCSharpCodeFixProvider()
         {
-            return new EmptyCatchBlockAnalyzerCodeFixProvider();
+            return new AddThrowStatementCodeFixProvider();
         }
 
         protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
