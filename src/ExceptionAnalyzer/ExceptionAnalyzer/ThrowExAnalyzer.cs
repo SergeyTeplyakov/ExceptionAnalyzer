@@ -38,6 +38,12 @@ namespace ExceptionAnalyzer
             // Looking for "ex" in "catch(Exception ex)"
             var exceptionDeclarationIdentifier = catchClause.Declaration.Identifier;
 
+            // Exception identifier is optional in catch clause. It could be "catch(Exception)"
+            if (exceptionDeclarationIdentifier.Kind() == SyntaxKind.None)
+            {
+                return;
+            }
+
             var catchExSymbolInfo = context.SemanticModel.GetSymbolInfo(exceptionDeclarationIdentifier.Parent);
 
             foreach (var throwStatement in catchClause.DescendantNodes().OfType<ThrowStatementSyntax>())
