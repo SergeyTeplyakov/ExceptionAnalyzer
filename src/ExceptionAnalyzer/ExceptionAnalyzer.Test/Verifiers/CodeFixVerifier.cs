@@ -10,12 +10,68 @@ using System.Threading;
 
 namespace TestHelper
 {
+
+    static class StringEx
+    {
+        public static IEnumerable<int> GetIndicesOfAndRemove(this string source, string content)
+        {
+            int currentIndex = 0;
+            while(true)
+            {
+                var index = source.IndexOf(content, currentIndex);
+                if (index == -1)
+                {
+                    yield break;
+                }
+
+                yield return index;
+                source = source.Remove(index, content.Length);
+                currentIndex = index + 1;
+            }
+        }
+    }
     /// <summary>
     /// Superclass of all Unit tests made for diagnostics with codefixes.
     /// Contains methods used to verify correctness of codefixes
     /// </summary>
     public abstract partial class CodeFixVerifier : DiagnosticVerifier
     {
+        protected void AssertHasWarning(string source, string diagnosticId)
+        {
+            // TODO: bad design!!
+            var positions = source.GetIndicesOfAndRemove("{on}").ToList();
+
+            if (positions.Count != 0)
+            {
+                source = source.Replace("{on}", "");
+            }
+
+            var diagnostics = GetSortedDiagnostics(source).Where(d => d.Id == diagnosticId).ToArray();
+
+            Assert.AreEqual(positions.Count, diagnostics.Length, $"Expected {positions.Count} but got {diagnostics.Length} warnings!");
+
+            var map = diagnostics.ToDictionary(d => d.Location.SourceSpan.Start);
+
+            foreach(var p in positions)
+            {
+                if (!map.ContainsKey(p))
+                {
+                    Assert.Fail($"Expected diagnostic at position {p}!");
+                }
+                else
+                {
+                    map.Remove(p);
+                }
+            }
+
+            if (map.Count != 0)
+            {
+                // There are some remaining diagnostics!!
+                string error = string.Join("\r\n", map.Values.Select(d => d.GetMessage()));
+                Assert.Fail("Unkown diagnostics are found: \r\n" + error);
+            }
+        }
+
         protected bool HasWarning(string source)
         {
             return GetSortedDiagnostics(source).Length != 0;
@@ -23,7 +79,12 @@ namespace TestHelper
 
         protected Diagnostic[] GetSortedDiagnostics(string source)
         {
-            return GetSortedDiagnostics(new[] { source }, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer());
+            return GetSortedDiagnostics(new[] { source.Replace("{on}", "") }, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer());
+        }
+
+        protected bool HasWarning(string source, string diagnosticId)
+        {
+            return GetSortedDiagnostics(source).Any(d => d.Id == diagnosticId);
         }
 
         /// <summary>

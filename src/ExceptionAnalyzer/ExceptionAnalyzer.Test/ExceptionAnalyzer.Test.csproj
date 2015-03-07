@@ -90,6 +90,7 @@
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SwallowExceptionAnalyzerTests.cs" />
     <Compile Include="GenericCatchBlockAnalyzerTests.cs" />
     <Compile Include="ThrowExAnalyzerTests.cs" />
     <Compile Include="EmptyCatchBlockAnalyzerTests.cs" />

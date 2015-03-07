@@ -20,7 +20,8 @@ namespace ExceptionAnalyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class EmptyCatchBlockAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "Empty catch block";
+        public const string DiagnosticId = "EA001";
+
         // TODO: extract all messages somewhere to be able to add errogant messages
         internal const string Title = "Empty catch block considered harmful!";
         internal const string MessageFormat = "{0} block is empty. Do you really know what the app state is?";
@@ -41,12 +42,7 @@ namespace ExceptionAnalyzer
         {
             // Type cast to what we know.
             var catchBlock = context.Node as CatchClauseSyntax;
-            if (catchBlock == null)
-            {
-                return;
-            }
-
-            if (catchBlock.Block.Statements.Count != 0)
+            if (catchBlock == null || catchBlock.Block.Statements.Count != 0)
             {
                 return;
             }
@@ -55,6 +51,7 @@ namespace ExceptionAnalyzer
             {
                 var type = catchBlock.Declaration?.ToString() ?? "";
                 string catchClause = $"'catch{type}'";
+
                 // Block is empty, create and report diagnostic warning.
                 var diagnostic = Diagnostic.Create(Rule, catchBlock.CatchKeyword.GetLocation(), catchClause);
                 context.ReportDiagnostic(diagnostic);

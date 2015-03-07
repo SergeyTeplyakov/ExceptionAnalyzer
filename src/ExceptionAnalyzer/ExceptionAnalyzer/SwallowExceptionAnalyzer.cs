@@ -11,16 +11,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace ExceptionAnalyzer
 {
     /// <summary>
-    /// Detects `catch` blocks that swallow an exception.
+    /// Analyzes controlf flow for the catch block and warns for every exit-point that swallow an exception.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class GenericCatchBlockAnalyzer : DiagnosticAnalyzer
+    public sealed class SwallowExceptionAnalyzer : DiagnosticAnalyzer
     {
-        // Catch is not empty, `catch` or `catch(Exception)` and some return statement exists. Add hint!
-        // show hint on the return itself
-        public const string DiagnosticId = "EA002";
-        internal const string Title = "Swallow exceptions considered harmful";
-        internal const string MessageFormat = "Catching everything considered harmful!\r\n Are you not curious at all about exception type?";
+        public const string DiagnosticId = "EA003";
+        internal const string Title = "Catch block swallows an exception";
+        internal const string MessageFormat = "Exit point '{0}' swallows an exception!";
         internal const string Category = "CodeSmell";
 
         internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true);
@@ -36,9 +34,8 @@ namespace ExceptionAnalyzer
         private static void AnalyzeSyntax(SyntaxNodeAnalysisContext context)
         {
             var catchBlock = context.Node as CatchClauseSyntax;
-            
-            // Current analyzer is interested in "catch {}" blocks without exception declarations
-            if (catchBlock == null || catchBlock.Declaration != null)
+            // Ignoring non-catch blocks and catch blocks without exception declarations
+            if (catchBlock == null || catchBlock.Declaration == null)
             {
                 return;
             }
@@ -46,12 +43,20 @@ namespace ExceptionAnalyzer
             StatementSyntax syntax = catchBlock.Block;
             var controlFlow = context.SemanticModel.AnalyzeControlFlow(syntax);
 
-            // Warn if end block is reachable or there is a return statement
-            if (controlFlow.EndPointIsReachable || controlFlow.ReturnStatements.Length != 0)
+            // Warn for every exit points
+            foreach(var @return in controlFlow.ExitPoints)
             {
                 // Block is empty, create and report diagnostic warning.
-                var diagnostic = Diagnostic.Create(Rule, catchBlock.CatchKeyword.GetLocation());
+                var diagnostic = Diagnostic.Create(Rule, @return.GetLocation(), @return.WithoutTrivia().GetText());
                 context.ReportDiagnostic(diagnostic);
+            }
+
+            // EndPoint (end of the block) is not a exit point. Should be covered separately!
+            if (controlFlow.EndPointIsReachable)
+            {
+                var diagnostic = Diagnostic.Create(Rule, catchBlock.Block.CloseBraceToken.GetLocation(), catchBlock.Block.CloseBraceToken.ValueText);
+                context.ReportDiagnostic(diagnostic);
+                
             }
         }
     }

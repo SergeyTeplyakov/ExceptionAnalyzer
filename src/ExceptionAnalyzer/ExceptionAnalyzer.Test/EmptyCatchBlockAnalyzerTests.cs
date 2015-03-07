@@ -14,23 +14,32 @@ namespace ExceptionAnalyzer.Test
     [TestClass]
     public class EmptyCatchBlockAnalyzerTests : CodeFixVerifier
     {
+        private const string TestBase = @"
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Diagnostics;
+
+    namespace ConsoleApplication1
+    {
+        class TypeName
+        {
+            {placeholder}
+        }
+    }";
+
         [TestMethod]
         public void TestWarningOnEmptyBlock()
         {
-        var test = @"
-using System;
+        var test = TestBase.Replace("{placeholder}", @"
+            public static void Foo()
+            {
+                try { Console.WriteLine(); }
+                catch {}
+            }");
 
-namespace ConsoleApplication1
-{
-    class TypeName
-    {
-        public static void Foo()
-        {
-            try { Console.WriteLine(); }
-            catch {}
-        }
-    }
-}";
             var expected = new DiagnosticResult
             {
                 Id = EmptyCatchBlockAnalyzer.DiagnosticId,

@@ -30,7 +30,7 @@ namespace ExceptionAnalyzer
         private static void AnalyzeCatchClause(SyntaxNodeAnalysisContext context)
         {
             var catchClause = context.Node as CatchClauseSyntax;
-            if (catchClause == null)
+            if (catchClause == null || catchClause.Declaration == null)
             {
                 return;
             }
