@@ -44,7 +44,8 @@ namespace ExceptionAnalyzer
                 return;
             }
 
-            var catchExSymbolInfo = context.SemanticModel.GetSymbolInfo(exceptionDeclarationIdentifier.Parent);
+            // This approach is not working!!!
+            // var catchExSymbolInfo = context.SemanticModel.GetSymbolInfo(exceptionDeclarationIdentifier.Parent);
 
             foreach (var throwStatement in catchClause.DescendantNodes().OfType<ThrowStatementSyntax>())
             {

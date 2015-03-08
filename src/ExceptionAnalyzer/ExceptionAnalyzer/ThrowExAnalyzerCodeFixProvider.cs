@@ -52,6 +52,7 @@ namespace ExceptionAnalyzer
 
             var modifiedCatchDeclaration = originalCatchDeclaration.ReplaceNode(originalThrowStatement, emptyThrow);
 
+            // Potential another approach: use CSharpSyntaxRewriter
             // Checking, whether "ex" was used only in "throw"
             bool onlyUsedByThrow = await ExceptionDeclarationCouldBeRemoved(context, root, originalThrowStatement);
             if (onlyUsedByThrow)
@@ -75,27 +76,6 @@ namespace ExceptionAnalyzer
             context.RegisterCodeFix(codeAction, diagnostic);
         }
 
-        // This is another possible solution!
-        // Not sure for now is it any better than existing one!
-        //class CustomRewriter : CSharpSyntaxRewriter
-        //{
-        //    private readonly ThrowStatementSyntax _originalThrowStatement;
-
-        //    public CustomRewriter(ThrowStatementSyntax originalThrowStatement)
-        //    {
-        //        _originalThrowStatement = originalThrowStatement;
-        //    }
-
-        //    public override SyntaxNode VisitThrowStatement(ThrowStatementSyntax node)
-        //    {
-        //        if (node == _originalThrowStatement)
-        //        {
-        //            return SyntaxFactory.ThrowStatement().WithTrailingTrivia(_originalThrowStatement.GetTrailingTrivia()).WithLeadingTrivia(_originalThrowStatement.GetLeadingTrivia());
-        //        }
-
-        //        return base.VisitThrowStatement(node);
-        //    }
-        //}
         private static async Task<bool> ExceptionDeclarationCouldBeRemoved(CodeFixContext context, SyntaxNode root, ThrowStatementSyntax originalThrowStatement)
         {
             // If "ex" from "throw ex" was the only reference to "ex", then additional modification should be made
@@ -145,11 +125,5 @@ namespace ExceptionAnalyzer
             // TODO: find a generic traversal algorithm!
             return token.Parent.Parent as ThrowStatementSyntax;
         }
-
-        //private bool ExceptionIsOnlyUsedInThrowStatements(IEnumerable<Diagnostic> diagnostics, SyntaxNode root)
-        //{
-
-        //}
-
     }
 }

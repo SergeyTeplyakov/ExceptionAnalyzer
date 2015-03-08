@@ -92,6 +92,7 @@
   <ItemGroup>
     <Compile Include="SwallowExceptionAnalyzerTests.cs" />
     <Compile Include="GenericCatchBlockAnalyzerTests.cs" />
+    <Compile Include="TracingExceptionMessageAnalyzerTests.cs" />
     <Compile Include="ThrowExAnalyzerTests.cs" />
     <Compile Include="EmptyCatchBlockAnalyzerTests.cs" />
     <Compile Include="Verifiers\CodeFixVerifier.cs" />

@@ -32,6 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="TracingExceptionMessageAnalyzerCodeFixProvider.cs" />
+    <Compile Include="TracingExceptionMessageAnalyzer.cs" />
     <Compile Include="SwallowExceptionAnalyzer.cs" />
     <Compile Include="GenericCatchBlockCodeFixProvider.cs" />
     <Compile Include="GenericCatchBlockAnalyzer.cs" />
@@ -47,7 +49,9 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="tools\install.ps1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
