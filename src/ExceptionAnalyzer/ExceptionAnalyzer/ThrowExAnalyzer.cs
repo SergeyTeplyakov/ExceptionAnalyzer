@@ -1,10 +1,10 @@
-using System.Collections.Immutable;
-using System.Linq;
+using ExceptionAnalyzer.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using ExceptionAnalyzer.Utils;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace ExceptionAnalyzer
 {
@@ -65,6 +65,7 @@ namespace ExceptionAnalyzer
                     context.ReportDiagnostic(diagnostic);
                 }
 
+                // TODO: Experiments!!
                 //var semanticModel = context.SemanticModel as Microsoft.CodeAnalysis.CSharp.SyntaxTreeSemanticModel;
                 //var semanticModel = context.
                 var symbolInfo = context.SemanticModel.GetSymbolInfo(identifier);

@@ -7,12 +7,6 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Formatting;
-using System.Diagnostics.Contracts;
-using Microsoft.CodeAnalysis.FindSymbols;
-using System;
-using System.Collections.Generic;
-using ExceptionAnalyzer.Utils;
 
 namespace ExceptionAnalyzer
 {
