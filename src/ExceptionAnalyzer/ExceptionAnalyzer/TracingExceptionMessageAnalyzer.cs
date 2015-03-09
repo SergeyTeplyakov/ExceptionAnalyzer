@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -18,29 +19,42 @@ namespace ExceptionAnalyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TracingExceptionMessageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "EA004";
+        public const string DiagnosticId = "EA005";
 
         // TODO: extract all messages somewhere to be able to add errogant messages
         internal const string Title = "Tracing `ex.Message` considered harmful!";
-        internal const string MessageFormat = "'{0}' contains a small portion of useful information. Observe whoole exception instead!";
+        internal const string MessageFormat = "'{0}' contains a small portion of useful information. Observe whole exception instead!";
         internal const string Category = "CodeSmell";
 
         // It seems that System.ApplicationException is absent in Portable apps
-        internal static DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+        private static DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics  => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.CatchClause);
+            // I don't know why yet, but selecting SytaxKind.CatchClause lead to very strange behavior:
+            // AnalyzeSyntax method would called for a few times and the same warning would be added to diagnostic list!
+            // Using IdentifierName syntax instead.
+            context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.IdentifierName);
+            //context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.CatchClause);
         }
 
         // Called when Roslyn encounters a catch clause.
         private static void AnalyzeSyntax(SyntaxNodeAnalysisContext context)
         {
-            // Type cast to what we know.
-            var catchBlock = context.Node as CatchClauseSyntax;
-            
+            // Casting Node object
+            var identifier = context.Node as SimpleNameSyntax;
+
+            // Not interesting with everything except "Message" names
+            if (identifier.Identifier.Text != "Message")
+            {
+                return;
+            }
+
+            // Looking for the embracing catch clause
+            var catchBlock = identifier.Parent.AncestorsAndSelf().OfType<CatchClauseSyntax>().FirstOrDefault();
+
             // Skipping empty catch blocks, catch blocks without any code, and catch blocks without exception identifiers!
             if (catchBlock == null || catchBlock.Block.Statements.Count == 0 ||
                 catchBlock.Declaration == null || catchBlock.Declaration.Identifier.Kind() == SyntaxKind.None)
@@ -84,23 +98,20 @@ namespace ExceptionAnalyzer
                     usages.Except(messageUsages.Select(x => x.Id))
                     .Any(u => u.Parent is ArgumentSyntax || // Exception object was used directly
                               u.Parent is EqualsValueClauseSyntax || // Was saved to field or local
-                              // or Inner exception was used
+                                                                     // or Inner exception was used
                               (u.Parent.As(x => x as MemberAccessExpressionSyntax)?.Name?.Identifier)?.Text == "InnerException");
-                
+
                 // If exception object was "observed" properly!
                 if (wasObserved)
                 {
                     return;
                 }
 
-                foreach (var messageUsage in messageUsages)
-                {
-                    // Block is empty, create and report diagnostic warning.
-                    var text = messageUsage.Parent.GetText(); // whould be ex.Message
-                    var location = messageUsage.Parent.Name.Identifier.GetLocation(); // Diagnostic should point to "Message" itself
-                    var diagnostic = Diagnostic.Create(Rule, location, text);
-                    context.ReportDiagnostic(diagnostic);
-                }
+                var location = identifier.GetLocation(); // Diagnostic should point to "Message" itself
+                var text = identifier.Parent.GetText(); // whould be ex.Message
+
+                var diagnostic = Diagnostic.Create(Rule, location, text);
+                context.ReportDiagnostic(diagnostic);
             }
         }
 

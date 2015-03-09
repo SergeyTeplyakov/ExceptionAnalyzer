@@ -100,7 +100,7 @@ namespace ConsoleApplication1
             AssertHasWarning(test, TracingExceptionMessageAnalyzer.DiagnosticId);
 
             var diagnostic = GetSortedDiagnostics(test).Single();
-            Assert.AreEqual("'ex.Message' contains a small portion of useful information. Observe whoole exception instead!",
+            Assert.AreEqual("'ex.Message' contains a small portion of useful information. Observe whole exception instead!",
                 diagnostic.GetMessage());
         }
 
