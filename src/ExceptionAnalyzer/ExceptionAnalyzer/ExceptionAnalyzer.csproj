@@ -111,6 +111,12 @@
     <PostBuildEvent>if exist Diagnostic.nuspec if exist "$(SolutionDir)\packages\NuGet.CommandLine.2.8.2\tools\NuGet.exe" "$(SolutionDir)\packages\NuGet.CommandLine.2.8.2\tools\NuGet.exe" pack Diagnostic.nuspec -OutputDirectory .</PostBuildEvent>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <NugetSource>http://nuget.org/</NugetSource>
+  </PropertyGroup>
+  <Target Name="Publish">
+    <Exec WorkingDirectory="$(PackageDir)" Command="NuGet.exe push &quot;$(AssemblyName).%(OutputAssemblyInfo.Version).nupkg&quot; -Source $(NugetSource)" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
