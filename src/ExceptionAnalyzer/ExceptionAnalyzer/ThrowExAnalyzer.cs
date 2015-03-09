@@ -11,7 +11,7 @@ namespace ExceptionAnalyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ThrowExAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "Rethrowing exception is possibly intended";
+        public const string DiagnosticId = "EA004";
         // TODO: extract all messages somewhere to be able to add errogant messages
         internal const string Title = "Rethrow exceptions properly, dude!";
         public const string MessageFormat = "Rethrowing exception is possibly intended";
@@ -19,7 +19,7 @@ namespace ExceptionAnalyzer
 
         internal static DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {

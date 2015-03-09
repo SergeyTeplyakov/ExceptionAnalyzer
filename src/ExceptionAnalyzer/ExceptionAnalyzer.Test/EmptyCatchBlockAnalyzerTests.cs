@@ -34,11 +34,11 @@ namespace ExceptionAnalyzer.Test
         public void TestWarningOnEmptyBlock()
         {
         var test = TestBase.Replace("{placeholder}", @"
-            public static void Foo()
-            {
-                try { Console.WriteLine(); }
-                catch {}
-            }");
+                public static void Foo()
+                {
+                    try { Console.WriteLine(); }
+                    catch {}
+                }");
 
             var expected = new DiagnosticResult
             {
@@ -47,30 +47,21 @@ namespace ExceptionAnalyzer.Test
                 Severity = DiagnosticSeverity.Warning,
                 Locations =
                     new[] {
-                            new DiagnosticResultLocation("Test0.cs", 11, 13)
+                            new DiagnosticResultLocation("Test0.cs", 17, 21)
                         }
             };
 
             VerifyCSharpDiagnostic(test, expected);
 
-            var fixtest = @"
-using System;
-
-namespace ConsoleApplication1
-{
-    class TypeName
-    {
-        public static void Foo()
-        {
-            try { Console.WriteLine(); }
-            catch
+            var fixtest = TestBase.Replace("{placeholder}", @"
+                public static void Foo()
+                {
+                    try { Console.WriteLine(); }
+                    catch
             {
                 throw;
             }
-        }
-    }
-}";
-
+        }");
             VerifyCSharpFix(test, fixtest);
         }
 

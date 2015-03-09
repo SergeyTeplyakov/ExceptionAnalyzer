@@ -108,7 +108,7 @@ namespace ConsoleApplication1
             var expected = new DiagnosticResult
             {
                 Id = GenericCatchBlockAnalyzer.DiagnosticId,
-                Message = "Just swallowed everything! Are you not curious at all about exception type?",
+                Message = "Catching everything considered harmful!\r\n Are you not curious at all about exception type?",
                 Severity = DiagnosticSeverity.Warning,
                 Locations =
                     new[] {

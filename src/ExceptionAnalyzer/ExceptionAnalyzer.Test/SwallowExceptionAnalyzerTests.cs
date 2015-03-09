@@ -70,7 +70,7 @@ namespace ConsoleApplication1
 
             var diagnostic = GetSortedDiagnostics(test).First();
             Assert.AreEqual(
-                "Exit point 'return 42;' swallowed an exception!",
+                "Exit point 'return 42;' swallows an exception!",
                 diagnostic.GetMessage());
         }
 

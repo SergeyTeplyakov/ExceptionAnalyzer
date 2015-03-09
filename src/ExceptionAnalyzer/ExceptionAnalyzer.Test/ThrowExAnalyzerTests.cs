@@ -57,7 +57,7 @@ namespace ConsoleApplication1
                catch {throw;}
             }");
 
-            Assert.IsTrue(HasWarning(test));
+            Assert.IsFalse(HasWarning(test));
         }
 
         [TestMethod]
