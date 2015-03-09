@@ -75,6 +75,34 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
+        public void SimpleTestWarningOnEmptyBlockThatCatchesException()
+        {
+            var test = @"
+using System;
+namespace ConsoleApplication1
+{
+    class TypeName
+    {
+        public static void Foo()
+        {
+            try { Console.WriteLine(); }
+            {on}catch(System.Exception) {}
+        }
+    }
+}";
+
+            var warningPosition = test.IndexOf("{on}");
+
+            var diagnostic = GetSortedDiagnostics(test.Replace("{on}", "")).Single();
+
+            Assert.AreEqual(EmptyCatchBlockAnalyzer.DiagnosticId, diagnostic.Id);
+            Assert.AreEqual("'catch(System.Exception)' block is empty. Do you really know what the app state is?",
+                diagnostic.GetMessage());
+            
+            Assert.AreEqual(warningPosition, diagnostic.Location.SourceSpan.Start);
+        }
+
+        [TestMethod]
         public void TestWarningOnEmptyBlockThatCatchesException()
         {
         var test = @"
