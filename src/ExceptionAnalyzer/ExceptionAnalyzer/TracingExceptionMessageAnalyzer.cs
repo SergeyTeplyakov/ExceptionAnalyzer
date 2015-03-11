@@ -77,15 +77,14 @@ namespace ExceptionAnalyzer
 
                 var usages = context.SemanticModel.SyntaxTree.GetRoot().DescendantNodes()
                     .OfType<IdentifierNameSyntax>()
-                    //.Select(id => context.SemanticModel.GetSymbolInfo(id))
-                    .Where(id => id.Identifier.Text == exceptionDeclarationIdentifier.Text)
+                    .Select(id => new { Symbol = context.SemanticModel.GetSymbolInfo(id), Id = id })
+                    .Where(x => x.Symbol.Symbol != null && x.Symbol.Symbol.ExceptionFromCatchBlock())
                     .ToList();
 
                 // First of all we should find all usages for ex.Message
                 var messageUsages = usages
-                    .Select(id => new { Parent = id.Parent as MemberAccessExpressionSyntax, Id = id })
+                    .Select(id => new { Parent = id.Id.Parent as MemberAccessExpressionSyntax, Id = id.Id })
                     .Where(x => x.Parent != null)
-                    .Where(x => x.Parent.Name.Identifier.Text == "Message")
                     .ToList();
 
                 if (messageUsages.Count == 0)
@@ -95,7 +94,8 @@ namespace ExceptionAnalyzer
                 }
 
                 bool wasObserved =
-                    usages.Except(messageUsages.Select(x => x.Id))
+                    usages.Select(id => id.Id)
+                    .Except(messageUsages.Select(x => x.Id))
                     .Any(u => u.Parent is ArgumentSyntax || // Exception object was used directly
                               u.Parent is EqualsValueClauseSyntax || // Was saved to field or local
                                                                      // or Inner exception was used
