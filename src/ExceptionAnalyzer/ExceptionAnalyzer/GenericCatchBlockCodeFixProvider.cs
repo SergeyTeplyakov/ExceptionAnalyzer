@@ -58,11 +58,17 @@ namespace ExceptionAnalyzer
                 name = SyntaxFactory.IdentifierName(exceptionType.Name);
             }
 
+            //catchBlock.WithCatchKeyword
+            
             var newDeclaration = SyntaxFactory
                 .CatchDeclaration(name, SyntaxFactory.Identifier(@"ex"))
-                .WithAdditionalAnnotations(Formatter.Annotation);
+                .WithTrailingTrivia(catchBlock.CatchKeyword.TrailingTrivia);
 
-            var newRoot = root.ReplaceNode(catchBlock, catchBlock.WithDeclaration(newDeclaration).WithAdditionalAnnotations(Formatter.Annotation));
+            var newRoot = root.ReplaceNode(catchBlock, 
+                // Trailing Trivia moved to catch declaration. Removing it from CatchKeyword
+                catchBlock.WithCatchKeyword(catchBlock.CatchKeyword.WithTrailingTrivia(SyntaxTriviaList.Empty))
+                    .WithDeclaration(newDeclaration)
+                    .WithAdditionalAnnotations(Formatter.Annotation));
 
             var codeAction = CodeAction.Create(FixText, ct => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)));
             context.RegisterCodeFix(codeAction, diagnostic);

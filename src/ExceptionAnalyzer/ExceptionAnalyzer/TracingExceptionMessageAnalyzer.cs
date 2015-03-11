@@ -11,11 +11,8 @@ using System.Linq;
 namespace ExceptionAnalyzer
 {
     /// <summary>
-    /// Detects emtpy generic catch blocks like `catch{}` or `catch(Exception){}`.
+    /// Checks that `catch` block uses `ex.Message`.
     /// </summary>
-    /// <remarks>
-    /// TODO: right now, <see cref="EmptyCatchBlockAnalyzer"/> is a subset of <see cref="GenericCatchBlockAnalyzer"/>. Revisit this approach later!
-    /// </remarks>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TracingExceptionMessageAnalyzer : DiagnosticAnalyzer
     {

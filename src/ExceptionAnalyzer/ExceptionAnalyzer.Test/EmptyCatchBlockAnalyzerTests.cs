@@ -37,7 +37,8 @@ namespace ExceptionAnalyzer.Test
                 public static void Foo()
                 {
                     try { Console.WriteLine(); }
-                    catch {}
+                    catch // foo
+                    {}
                 }");
 
             var expected = new DiagnosticResult
@@ -57,7 +58,7 @@ namespace ExceptionAnalyzer.Test
                 public static void Foo()
                 {
                     try { Console.WriteLine(); }
-                    catch
+                    catch // foo
             {
                 throw;
             }

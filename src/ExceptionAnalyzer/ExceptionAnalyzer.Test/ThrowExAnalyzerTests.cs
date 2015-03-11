@@ -189,7 +189,7 @@ namespace ConsoleApplication1
         }");
 
             Assert.AreEqual(2, GetSortedDiagnostics(test).Length);
-            // TODO: currently the fix is breaking the layout. 
+            
             var fixtest = TestBase.Replace("{placeholder}", @"
         public void Foo(int n)
         {
