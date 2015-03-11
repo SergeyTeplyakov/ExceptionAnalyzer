@@ -98,7 +98,7 @@ namespace ConsoleApplication1
             {
                 Console.WriteLine();
             }
-            catch
+            catch // something!
             {
                 Console.WriteLine();
             }
@@ -131,7 +131,7 @@ namespace ConsoleApplication1
             {
                 Console.WriteLine();
             }
-            catch (Exception ex)
+            catch (Exception ex) // something!
             {
                 Console.WriteLine();
             }

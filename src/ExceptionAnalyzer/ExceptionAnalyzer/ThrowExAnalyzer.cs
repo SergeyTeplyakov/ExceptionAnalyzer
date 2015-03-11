@@ -44,38 +44,25 @@ namespace ExceptionAnalyzer
                 return;
             }
 
-            // This approach is not working!!!
-            // var catchExSymbolInfo = context.SemanticModel.GetSymbolInfo(exceptionDeclarationIdentifier.Parent);
-
             foreach (var throwStatement in catchClause.DescendantNodes().OfType<ThrowStatementSyntax>())
             {
                 var identifier =
-                    throwStatement
-                    .Expression.As(x => x as IdentifierNameSyntax);
+                    throwStatement.Expression as IdentifierNameSyntax;
 
                 if (identifier == null)
                     continue;
 
-                // Naive approach!!
-                if (identifier.Identifier.Text == exceptionDeclarationIdentifier.Text)
+                var symbol = context.SemanticModel.GetSymbolInfo(identifier);
+                if (symbol.Symbol == null)
+                    continue;
+
+                if (symbol.Symbol.ExceptionFromCatchBlock())
                 {
                     // throw ex; detected!
                     var diagnostic = Diagnostic.Create(Rule, identifier.GetLocation());
 
                     context.ReportDiagnostic(diagnostic);
                 }
-
-                // TODO: Experiments!!
-                //var semanticModel = context.SemanticModel as Microsoft.CodeAnalysis.CSharp.SyntaxTreeSemanticModel;
-                //var semanticModel = context.
-                var symbolInfo = context.SemanticModel.GetSymbolInfo(identifier);
-                
-                //// Always null!!
-                //var dec = anotherSyntaxModel.GetDeclaredSymbol(identifier);
-                //var dec2 = anotherSyntaxModel.GetDeclaredSymbol(identifier.Parent);
-
-                // GetDeclaredSymbol always returns null! Why!&!&
-                //var declared = context.SemanticModel.GetDeclaredSymbol(identifier);
             }
         }
     }

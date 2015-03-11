@@ -37,12 +37,14 @@
     <Compile Include="SwallowExceptionAnalyzer.cs" />
     <Compile Include="GenericCatchBlockCodeFixProvider.cs" />
     <Compile Include="GenericCatchBlockAnalyzer.cs" />
+    <Compile Include="Utils\Lazy.cs" />
     <Compile Include="Utils\Monadic.cs" />
     <Compile Include="ThrowExAnalyzerCodeFixProvider.cs" />
     <Compile Include="ThrowExAnalyzer.cs" />
     <Compile Include="AddThrowStatementCodeFixProvider.cs" />
     <Compile Include="EmptyCatchBlockAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\SymbolExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ExceptionAnalyzer.nuspec">

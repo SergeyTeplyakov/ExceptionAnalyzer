@@ -90,6 +90,32 @@ namespace ConsoleApplication1
         }
 
         [TestMethod]
+        public void WarningOnThrowExComplex()
+        {
+            var test =
+                TestBase.Replace("{placeholder}", @"
+            public void Foo(int arg)
+            {
+               Exception ex0 = new Exception();
+               try { Console.WriteLine(); }
+               catch(Exception ex)
+               {
+                    Console.WriteLine(ex0);
+                    Exception ex2 = null;
+                    Console.WriteLine(ex2);
+                    
+                    if (arg == 42)
+                        throw {on}ex;
+                    else
+                        throw {on}ex;
+               }
+            }");
+
+            AssertHasWarning(test, ThrowExAnalyzer.DiagnosticId);
+        }
+
+
+        [TestMethod]
         public void TestTwoWarnings()
         {
             var test =
@@ -99,12 +125,12 @@ namespace ConsoleApplication1
                try { Console.WriteLine(); }
                catch(Exception ex)
                {
-                 if (ex.Message.Length == 5) throw ex;
-                 throw ex;
+                 if (ex.Message.Length == 5) throw {on}ex;
+                 throw {on}ex;
                }
             }");
 
-            Assert.AreEqual(2, GetSortedDiagnostics(test).Length);
+            AssertHasWarning(test, ThrowExAnalyzer.DiagnosticId);
         }
 
         [TestMethod]
