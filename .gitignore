@@ -1,6 +1,7 @@
 src/ExceptionAnalyzer/ExceptionAnalyzer/obj/
 src/ExceptionAnalyzer/ExceptionAnalyzer/bin/
 src/packages/
+Build/
 src/ExceptionAnalyzer/ExceptionAnalyzer.Vsix/bin/
 src/ExceptionAnalyzer/ExceptionAnalyzer.Test/obj/
 src/ExceptionAnalyzer/ExceptionAnalyzer.Vsix/obj/

@@ -4,7 +4,8 @@ if "%config%" == "" (
    set config=Release
 )
  
-set version=1.0.0
+set version=1.0.2
+
 if not "%PackageVersion%" == "" (
    set version=%PackageVersion%
 )
@@ -15,10 +16,10 @@ if "%nuget%" == "" (
 	set nuget=nuget
 )
  
-"%programfiles(x86)%\MSBuild\14.0\bin\msbuild" src\ExceptionAnalyzer.sln /p:Configuration="%config%" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=diag /nr:false
+set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
+
+msbuild src\ExceptionAnalyzer.sln /p:Configuration="%config%" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=diag /nr:false /t:Rebuild
+
+COPY src\ExceptionAnalyzer\ExceptionAnalyzer.Vsix\bin\%config%\*.vsix BUILD
  
-mkdir Build
-mkdir Build\tools
-mkdir Build\tools\analyzers\
- 
-%nuget% pack "src\ExceptionAnalyzer\ExceptionAnalyzer\ExceptionAnalyzer.nuspec" -NoPackageAnalysis -verbosity detailed -o Build -Version %version% -p Configuration="%config%"
+%nuget% pack "src\ExceptionAnalyzer\ExceptionAnalyzer\ExceptionAnalyzer.nuspec" -NoPackageAnalysis -verbosity detailed -o Build -Version %version% -p Configuration="%config%" -BasePath "src\\ExceptionAnalyzer\\ExceptionAnalyzer\\bin\\Release\\" -OutputDirectory "Build"
