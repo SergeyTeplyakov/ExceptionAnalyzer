@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace ExceptionAnalyzer
 {
@@ -14,7 +15,7 @@ namespace ExceptionAnalyzer
     {
         public const string DiagnosticId = "EA003";
         internal const string Title = "Catch block swallows an exception";
-        internal const string MessageFormat = "Exit point '{0}' swallows an exception!";
+        internal const string MessageFormat = "Exit point '{0}' swallows an exception!\r\nConsider throwing an exception instead.";
         internal const string Category = "CodeSmell";
 
         internal static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true);
@@ -40,11 +41,19 @@ namespace ExceptionAnalyzer
             var controlFlow = context.SemanticModel.AnalyzeControlFlow(syntax);
 
             // Warn for every exit points
-            foreach(var @return in controlFlow.ExitPoints)
+            foreach (SyntaxNode @return in controlFlow.ExitPoints)
             {
-                // Block is empty, create and report diagnostic warning.
-                var diagnostic = Diagnostic.Create(Rule, @return.GetLocation(), @return.WithoutTrivia().GetText());
-                context.ReportDiagnostic(diagnostic);
+                // Due to some very weird behavior, return statement would be an exit point of the method
+                // even if the return statement is unreachable (for instance, because throw statement is preceding it);
+                // So analyzing control flow once more and emitting a warning only when the endpoint is reachable!
+                var localFlow = context.SemanticModel.AnalyzeControlFlow(@return);
+
+                if (localFlow.Succeeded && localFlow.StartPointIsReachable)
+                {
+                    // Block is empty, create and report diagnostic warning.
+                    var diagnostic = Diagnostic.Create(Rule, @return.GetLocation(), @return.WithoutTrivia().GetText());
+                    context.ReportDiagnostic(diagnostic);
+                }
             }
 
             // EndPoint (end of the block) is not a exit point. Should be covered separately!

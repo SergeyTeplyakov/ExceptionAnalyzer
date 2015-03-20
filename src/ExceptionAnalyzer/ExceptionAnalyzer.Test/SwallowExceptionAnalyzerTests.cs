@@ -70,8 +70,28 @@ namespace ConsoleApplication1
 
             var diagnostic = GetSortedDiagnostics(test).First();
             Assert.AreEqual(
-                "Exit point 'return 42;' swallows an exception!",
+                "Exit point 'return 42;' swallows an exception!\r\nConsider throwing an exception instead.",
                 diagnostic.GetMessage());
+        }
+
+        [TestMethod]
+        public void TestNoWarningOnReturnIfNotReachable()
+        {
+            var test = TestBase.Replace("{placeholder}", @"
+        public int Foo(int n)
+        {
+            try
+            {}
+            catch(Exception)
+            {
+                throw;
+                return 42;
+            }
+            return 42;
+        }");
+
+            var count = GetSortedDiagnostics(test).Count(a => a.Id == SwallowExceptionAnalyzer.DiagnosticId);
+            Assert.AreEqual(0, count);
         }
 
         [TestMethod]
