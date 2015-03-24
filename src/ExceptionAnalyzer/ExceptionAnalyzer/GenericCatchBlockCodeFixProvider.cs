@@ -27,10 +27,6 @@ namespace ExceptionAnalyzer
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            
-            // Create a new block with a list that contains a throw statement.
-            var throwStatement = SyntaxFactory.ThrowStatement();
-
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
             var diagnostic = context.Diagnostics.First();
@@ -38,12 +34,32 @@ namespace ExceptionAnalyzer
             var token = root.FindToken(diagnosticSpan.Start); // This is catch keyword.
 
             var catchBlock = token.Parent as CatchClauseSyntax;
-            var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+
+            
+            var newCatchClause = await CatchUtils.WitchExceptionDeclarationAsync(catchBlock, context.Document);
+            var newRoot = root.ReplaceNode(catchBlock, newCatchClause);
+
+            var codeAction = CodeAction.Create(FixText, ct => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)));
+            context.RegisterCodeFix(codeAction, diagnostic);
+        }
+    }
+
+    internal static class CatchUtils
+    {
+        public static async Task<CatchClauseSyntax> WitchExceptionDeclarationAsync(
+            CatchClauseSyntax catchBlock, Document document, string identifierName = "ex")
+        {
+            // Create a new block with a list that contains a throw statement.
+            var throwStatement = SyntaxFactory.ThrowStatement();
+
+            var root = await document.GetSyntaxRootAsync().ConfigureAwait(false);
+
+            var semanticModel = await document.GetSemanticModelAsync().ConfigureAwait(false);
             var exceptionType = semanticModel.Compilation.GetTypeByMetadataName(typeof(Exception).FullName);
 
             // TODO: super naive pproach
             // Getting all using statements and looking for System there
-            var usings = 
+            var usings =
                 root.DescendantNodesAndSelf().OfType<NamespaceDeclarationSyntax>().SelectMany(nd => nd.Usings)
                 .Union(
                     root.DescendantNodesAndSelf().OfType<CompilationUnitSyntax>().SelectMany(nd => nd.Usings)).ToArray();
@@ -58,20 +74,15 @@ namespace ExceptionAnalyzer
                 name = SyntaxFactory.IdentifierName(exceptionType.Name);
             }
 
-            //catchBlock.WithCatchKeyword
-            
             var newDeclaration = SyntaxFactory
-                .CatchDeclaration(name, SyntaxFactory.Identifier(@"ex"))
+                .CatchDeclaration(name, SyntaxFactory.Identifier(identifierName))
                 .WithTrailingTrivia(catchBlock.CatchKeyword.TrailingTrivia);
 
-            var newRoot = root.ReplaceNode(catchBlock, 
+            return 
                 // Trailing Trivia moved to catch declaration. Removing it from CatchKeyword
                 catchBlock.WithCatchKeyword(catchBlock.CatchKeyword.WithTrailingTrivia(SyntaxTriviaList.Empty))
                     .WithDeclaration(newDeclaration)
-                    .WithAdditionalAnnotations(Formatter.Annotation));
-
-            var codeAction = CodeAction.Create(FixText, ct => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)));
-            context.RegisterCodeFix(codeAction, diagnostic);
+                    .WithAdditionalAnnotations(Formatter.Annotation);
         }
     }
 }

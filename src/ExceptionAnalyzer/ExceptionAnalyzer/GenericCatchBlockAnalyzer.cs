@@ -41,7 +41,7 @@ namespace ExceptionAnalyzer
 
             StatementSyntax syntax = catchBlock.Block;
             var controlFlow = context.SemanticModel.AnalyzeControlFlow(syntax);
-
+            
             // Warn if end block is reachable or there is a return statement
             if (controlFlow.EndPointIsReachable || controlFlow.ReturnStatements.Length != 0)
             {

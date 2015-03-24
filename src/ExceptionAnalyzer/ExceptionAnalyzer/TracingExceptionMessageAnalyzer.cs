@@ -34,7 +34,6 @@ namespace ExceptionAnalyzer
             // AnalyzeSyntax method would called for a few times and the same warning would be added to diagnostic list!
             // Using IdentifierName syntax instead.
             context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.IdentifierName);
-            //context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.CatchClause);
         }
 
         // Called when Roslyn encounters a catch clause.

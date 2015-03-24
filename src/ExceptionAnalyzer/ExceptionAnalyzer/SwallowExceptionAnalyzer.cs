@@ -8,7 +8,7 @@ using System.Linq;
 namespace ExceptionAnalyzer
 {
     /// <summary>
-    /// Analyzes controlf flow for the catch block and warns for every exit-point that swallow an exception.
+    /// Analyzes control flow for the catch block and warns for every exit-point that swallow an exception.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class SwallowExceptionAnalyzer : DiagnosticAnalyzer
