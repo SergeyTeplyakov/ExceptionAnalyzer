@@ -13,6 +13,7 @@
     <description>Simple analyzer that warns about the most common code smells related to excpetion handling.</description>
     <releaseNotes>
 Supported features
+- Warning for `throw new Exception("");` from the catch block
 - Warning for `throw ex;` with a fix to `throw;`.
 - Warning and fix for empty generic catch block and `catch(Exception){}`.
 - Warning for swallowed exceptions in the `catch(Exception ex)` blocks
