@@ -32,6 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ThrowNewExceptionAnalyzerCodeFixProvider.cs" />
+    <Compile Include="ThrowNewExceptionAnalyzer.cs" />
     <Compile Include="TracingExceptionMessageAnalyzerCodeFixProvider.cs" />
     <Compile Include="TracingExceptionMessageAnalyzer.cs" />
     <Compile Include="SwallowExceptionAnalyzer.cs" />
