@@ -4,7 +4,7 @@ Proper exception handling is a common issue in many projects. There is several c
 
 This analyzer catches following issues.
 
-## New excpetion should have original exception as InnerException (v.1.0.5)
+## New exception should have original exception as InnerException (v.1.0.5)
 
 Catch block could throw another exception that would be more meaningful for the clients. But in this case original exception should not be forgotten.
 Tool will warn about this and provide a fix that will add original excpetion to `InnerException` if possible:
