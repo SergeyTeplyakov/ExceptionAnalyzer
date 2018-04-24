@@ -1,22 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
-  <Metadata>
-    <Identity Id="ExceptionAnalyzer.Vsix..f6fc9ad6-01fa-41ce-9105-c8e285000235" Version="1.0.2" Language="en-US" Publisher="seteplia"/>
-    <DisplayName>Exception Analyzer</DisplayName>
-    <Description xml:space="preserve">Simple analyzer that warns about the most common code smells related to excpetion handling.</Description>
-    <MoreInfo>https://github.com/SergeyTeplyakov/ExceptionAnalyzer</MoreInfo>
-    <License>License</License>
-    <GettingStartedGuide>https://github.com/SergeyTeplyakov/ExceptionAnalyzer/README.md</GettingStartedGuide>
-    <Tags>code smells, exception handling, best practices</Tags>
-  </Metadata>
-  <Installation>
-    <InstallationTarget Version="[14.0,]" Id="Microsoft.VisualStudio.Pro" />
-  </Installation>
-  <Dependencies>
-    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
-  </Dependencies>
-  <Assets>
-    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="ExceptionAnalyzer" Path="|ExceptionAnalyzer|"/>
-    <Asset Type="Microsoft.VisualStudio.Analyzer" d:Source="Project" d:ProjectName="ExceptionAnalyzer" Path="|ExceptionAnalyzer|"/>
-  </Assets>
+    <Metadata>
+        <Identity Id="ExceptionAnalyzer.Vsix..f6fc9ad6-01fa-41ce-9105-c8e285000235" Version="1.0.6" Language="en-US" Publisher="seteplia"/>
+        <DisplayName>Exception Analyzer</DisplayName>
+        <Description xml:space="preserve">Simple analyzer that warns about the most common code smells related to excpetion handling.</Description>
+        <MoreInfo>https://github.com/SergeyTeplyakov/ExceptionAnalyzer</MoreInfo>
+        <License>License</License>
+        <GettingStartedGuide>https://github.com/SergeyTeplyakov/ExceptionAnalyzer/README.md</GettingStartedGuide>
+        <Tags>code smells, exception handling, best practices</Tags>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Version="[15.0,]" Id="Microsoft.VisualStudio.Pro" />
+    </Installation>
+    <Dependencies>
+        <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
+    </Dependencies>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,)" />
+    </Prerequisites>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="ExceptionAnalyzer" Path="|ExceptionAnalyzer|"/>
+        <Asset Type="Microsoft.VisualStudio.Analyzer" d:Source="Project" d:ProjectName="ExceptionAnalyzer" Path="|ExceptionAnalyzer|"/>
+    </Assets>
 </PackageManifest>

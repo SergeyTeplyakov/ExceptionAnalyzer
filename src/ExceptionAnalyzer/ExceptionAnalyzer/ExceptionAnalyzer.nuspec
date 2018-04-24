@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/SergeyTeplyakov/ExceptionAnalyzer/</projectUrl>
     <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Simple analyzer that warns about the most common code smells related to excpetion handling.</description>
+    <description>Simple analyzer that warns about the most common code smells related to exception handling.</description>
     <releaseNotes>
 Supported features
 - Warning for `throw new Exception("");` from the catch block
