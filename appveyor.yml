@@ -1,0 +1,10 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+build_script:
+- cmd: >-
+    nuget restore .\src\ExceptionAnalyzer.sln
+
+    .\build.bat
+artifacts:
+- path: build\*.nupkg
+  name: ExceptionAnalyzer.nupkg
