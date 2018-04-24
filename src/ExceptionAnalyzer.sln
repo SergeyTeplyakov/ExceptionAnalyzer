@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.22609.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionAnalyzer", "ExceptionAnalyzer\ExceptionAnalyzer\ExceptionAnalyzer.csproj", "{9104ED93-FBB2-4AA7-AF39-2FED566E3E89}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{2AFEB123-CA7A-4FBF-9478-395BEF403649}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionAnalyzer", "ExceptionAnalyzer\ExceptionAnalyzer\ExceptionAnalyzer.csproj", "{9104ED93-FBB2-4AA7-AF39-2FED566E3E89}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionAnalyzer.Test", "ExceptionAnalyzer\ExceptionAnalyzer.Test\ExceptionAnalyzer.Test.csproj", "{2322605B-F0C2-427D-912C-F8AC977B9E28}"
 EndProject
@@ -35,5 +35,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B4BE7E9C-E303-46EF-9120-A9D8D6996A63}
 	EndGlobalSection
 EndGlobal
