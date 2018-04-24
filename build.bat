@@ -4,7 +4,7 @@ if "%config%" == "" (
    set config=Release
 )
  
-set version=1.0.5
+set version=1.0.6
 
 if not "%PackageVersion%" == "" (
    set version=%PackageVersion%
@@ -19,6 +19,8 @@ if "%nuget%" == "" (
 set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 
 msbuild src\ExceptionAnalyzer.sln /p:Configuration="%config%" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=diag /nr:false /t:Rebuild
+
+mkdir "build"
 
 COPY src\ExceptionAnalyzer\ExceptionAnalyzer.Vsix\bin\%config%\*.vsix BUILD
  
